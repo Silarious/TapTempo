@@ -2,14 +2,14 @@
 
 //Global Variables
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
-let context = new AudioContext(),
-osc = null,
-volume = null,
-bpmValue = document.getElementById('bpmBox').value,
-bpmMutateValue = document.getElementById('bpmMutateBox').value,
-countsMutate = document.getElementById('countsMutateBox').value,
-mutationStart = document.getElementById('mutationStartBox').value,
-counts = document.getElementById('countsBox');
+let context = new AudioContext();
+let osc = null;
+let volume = null;
+let bpmValue = document.getElementById('bpmBox').value;
+let bpmMutateValue = document.getElementById('bpmMutateBox').value;
+let countsMutate = document.getElementById('countsMutateBox').value;
+let mutationStart = document.getElementById('mutationStartBox').value;
+let counts = document.getElementById('countsBox').value;
 let active;
 let countClock = 0;
 
@@ -55,30 +55,46 @@ function sound() {
 	osc.stop(context.currentTime + totalTime);
 }
 
-//Stop BPM loop
 document.getElementById('stop').addEventListener('click', function () {
+	if (active !== false) {
 	active = false;
 	countClock = 0;
 	document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
+	BPM(0);
+	}
 });
 
 //Main BPM 
-function BPM(bpm = 60, bars = 1, counts = 4) {
-	if (active === true && counts !== 0) {
-		sound()
-		var t1 = performance.now();
-		countClock++
-		document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
-		if (document.getElementById('infiniteLoop').checked) {
-			loop(1,t1)
-		} else {
+let beatLoop;
+let arr = [];
+function BPM(counts){
+if (counts === 0) {
+    active = false;
+    clearInterval(beatLoop);
+} else {
+	countClock = 1;
+	document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
+    sound();
+    if (document.getElementById('infiniteLoop').checked === false) {
+        counts -= 1;
+    }
+    beatLoop = setInterval((e) => {
+		if (active === true && counts !== 0) {
+			countClock++
+			document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
+			sound();
+			arr.push(performance.now())
+			console.log(arr);
+			if (document.getElementById('infiniteLoop').checked === false) {
 			counts -= 1;
-			loop(counts,t1)
+			}
+		} else {
+			active = false;
+			clearInterval(beatLoop);
+			console.log(performance.now(),"no beat"); 
 		}
-	} else if (counts === 0) {
-		active = false;
-	}
-	
+	}, 60000/Number(document.getElementById('bpmBox').value));
+}
 }
 
 function mutateBPM(){
@@ -89,19 +105,6 @@ function mutateBPM(){
 	console.log(mutationRange,mutateStep);
 }
 mutateBPM()
-
-function loop(counts,t1) {
-	if (active !== false) {
-		bpmValue = document.getElementById('bpmBox').value;
-		let delay = 60000 / bpmValue;
-		var t2 = performance.now();
-		setTimeout(function () {
-			var t3 = performance.now();
-			BPM(bpmValue, 1, counts)
-			console.log((t3-t1),`Delay: ${delay} ms`);
-		}, delay);
-	}
-}
 
 //Event Listeners
 /* document.querySelectorAll('.inputElement').forEach(item => {
@@ -120,10 +123,7 @@ document.getElementById('playSound').addEventListener('click', function () {
 document.getElementById('start').addEventListener('mousedown', function () {
 	if (active === false || active !== true) {
 		active = true;
-		BPM(bpmValue, 1, counts.value)
-		countClock = 1;
-		document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
-		
+		BPM(8)
 	}
 });
 
@@ -158,6 +158,3 @@ function switchBPMVerb(bpmValue){
 }
 
 //Debugging
-
-
-//TODO eliminate code duplication for osc parameters, see BPM() & ('playSound').addEventListener
