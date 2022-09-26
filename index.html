@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!-- * Extension Better Comments used to add highlighting. https://github.com/aaron-bond/better-comments * -->
+<html>
+    <head>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="dark-theme.css">
+        <script>
+            function syncInput(value,id) {
+                 eval("document.getElementById('" + id + "').value =" + value)
+            }
+            
+        </script>
+    </head>
+    <body>
+        <div class="hubBox">
+            <div class="sectionWrapper">
+                <button id="playSound" type="button">Play Sound</button>
+                <button id="start" type="button">Start BPM Loop</button>
+                <button id="stop" type="button">Stop BPM Loop</button>
+                <div><input checked type="checkbox" id="infiniteLoop"><label for="infiniteLoop">Continuous Loop?</label></div>
+            </div>
+            <div class="hubBoxInputs">
+                
+                
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Frequency<input id="freqBox" class="inputElement freq" type="number" name="freq" value="150" min="20" max="10000" step="0.000001" oninput="syncInput(this.value,'freqSlider')"></p>
+                    <input id="freqSlider" class="inputElement freq" type="range" value="150" min="20" max="10000" step="0.000001" oninput="syncInput(this.value,'freqBox')">
+                </div>
+            </div>
+            <div class="hubBoxInputs">
+                <select id="oscType" class="inputElement">
+                    <option value="sine">Sine</option>
+                    <option value="square">Square</option>
+                    <option value="sawtooth">Sawtooth</option>
+                    <option value="triangle">Triangle</option>
+                </select>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Attack<input id="attackBox" class="inputElement attack" type="number" name="attack" value="0.001" step="0.0001" min="0" max="0.1" oninput="syncInput(this.value,'attackSlider')"></p>
+                    <input id="attackSlider" class="inputElement attack" type="range" value="0.001" step="0.0001" min="0" max="0.1" oninput="syncInput(this.value,'attackBox')">
+                </div>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Decay<input id="decayBox" class="inputElement decay" type="number" name="decay" value="0.02" step="0.0001" min="0" max="0.5" oninput="syncInput(this.value,'decaySlider')"></p>
+                    <input id="decaySlider" class="inputElement decay" type="range" value="0.02" step="0.0001" min="0" max="0.5" oninput="syncInput(this.value,'decayBox')">
+                </div>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Sustain<input id="sustainBox" class="inputElement sustain" type="number" name="sustain" value="0.02" step="0" min="0.0001" max="0.5" oninput="syncInput(this.value,'sustainSlider')"></p>
+                    <input id="sustainSlider" class="inputElement sustain" type="range" value="0.02" step="0.0001" min="0" max="0.5" oninput="syncInput(this.value,'sustainBox')">
+                </div>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Sustain Level<input id="sustainLevelBox" class="inputElement sustainLevel" type="number" name="sustainLevel" value="0.05" step="0.0001" min="0.00001" max="1" oninput="syncInput(this.value,'sustainLevelSlider')"></p>
+                    <input id="sustainLevelSlider" class="inputElement sustainLevel" type="range" value="0.05" step="0.0001" min="0.00001" max="1" oninput="syncInput(this.value,'sustainLevelBox')">
+                </div>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Release<input id="releaseBox" class="inputElement release" type="number" name="release" value="0.2" step="0" min="0.0001" max="0.5" oninput="syncInput(this.value,'releaseSlider')"></p>
+                    <input id="releaseSlider" class="inputElement release" type="range" value="0.2" step="0.0001" min="0" max="0.5" oninput="syncInput(this.value,'releaseBox')">
+                </div>
+                
+            </div>
+            <div class="hubBoxInputs">
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">BPM<input id="bpmBox" class="inputElement bpm" type="number" name="bpm" value="60" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmSlider')"></p>
+                    <input id="bpmSlider" class="inputElement bpm" type="range" value="60" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmBox')">
+                </div>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">BPM Max<input id="bpmMutateBox" class="inputElement bpmMutate" type="number" name="bpmMutate" value="120" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmMutateSlider')"></p>
+                    <input id="bpmMutateSlider" class="inputElement bpmMutate" type="range" value="120" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmMutateBox')">
+                </div>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Counts<input id="countsBox" class="inputElement counts" type="number" name="counts" min="1" max="64" value="16" step="1" oninput="syncInput(this.value,'countsSlider')"></p>
+                    <input id="countsSlider" class="inputElement counts" type="range" min="1" max="64" value="16" step="1" oninput="syncInput(this.value,'countsBox')">
+                </div>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Mutation Counts<input id="countsMutateBox" class="inputElement countsMutate" type="number" name="countsMutate" min="1" max="64" value="8" step="1" oninput="syncInput(this.value,'countsMutateSlider')"></p>
+                    <input id="countsMutateSlider" class="inputElement countsMutate" type="range" min="1" max="64" value="8" step="1" oninput="syncInput(this.value,'countsMutateBox')">
+                </div>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Mutation Start<input id="mutationStartBox" class="inputElement mutationStart" type="number" name="mutationStart" min="1" max="64" value="8" step="1" oninput="syncInput(this.value,'mutationStartSlider')"></p>
+                    <input id="mutationStartSlider" class="inputElement mutationStart" type="range" min="1" max="64" value="8" step="1" oninput="syncInput(this.value,'mutationStartBox')">
+                </div>
+            </div>
+            <div class="hubBoxInputs">
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Master Volume<input id="masterVolumeBox" class="inputElement masterVolume" type="number" name="masterVolume" value="0.5" step="0.01" min="0.01" max="1" oninput="syncInput(this.value,'masterVolumeSlider')"></p>
+                    <input id="masterVolumeSlider" class="inputElement masterVolume" type="range" value="0." step="0.01" min="0.01" max="1" oninput="syncInput(this.value,'masterVolumeBox')">
+                </div>
+            </div>
+            <div class="sectionWrapper">
+                <div class="Clock" id="CountClock">Count: 0</div>
+            </div>
+        </div>
+        
+            
+        
+    <footer>
+
+    </footer>
+    </body>
+    <script src="/js/app.js"></script>
+</html>

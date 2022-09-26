@@ -1,0 +1,55 @@
+* {
+    color: var(--text-color);
+}
+body, select {
+    background-color: var(--bg-color);
+} 
+.hubBox {
+    display: flex;
+    padding: 0px 4px;
+    gap: 40px;
+    justify-content: center;
+    flex-direction: column;
+    align-content: center;
+}
+.sectionWrapper {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+.hubBoxInputs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+.selection:not(:has(#freqSlider)) {
+    width: 200px;
+}
+input#freqSlider {
+    width: 90vw;
+}
+input#freqBox {
+    width: 7em;
+}
+button {
+    color: #000;
+}
+p.inputText {
+    margin-left: 4px;
+    margin-bottom: 2px;
+}
+input[type="number"] {
+    width: 5em;
+    margin: 0px 5px;
+    color: #000;
+    float: right;
+}
+input[type="range"] {
+    width: 100%;
+}
+div.Clock {
+    text-align: center;
+    font-size: 60px;
+}
