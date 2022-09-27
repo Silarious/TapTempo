@@ -9,18 +9,17 @@ let bpmValue = document.getElementById('bpmBox').value;
 let bpmMutateValue = document.getElementById('bpmMutateBox').value;
 let countsMutate = document.getElementById('countsMutateBox').value;
 let mutationStart = document.getElementById('mutationStartBox').value;
-let counts = document.getElementById('countsBox').value;
 let active;
 let countClock = 0;
 
 window.performance = window.performance || {};
 performance.now = (function() {
-  return performance.now       ||
-         performance.mozNow    ||
-         performance.msNow     ||
-         performance.oNow      ||
-         performance.webkitNow ||
-         function() { return new Date().getTime(); };
+	return performance.now    ||
+        performance.mozNow    ||
+        performance.msNow     ||
+        performance.oNow      ||
+        performance.webkitNow ||
+        function() { return new Date().getTime(); };
 })();
 
 //Produce sound with different paramters to shape the oscilator.
@@ -66,35 +65,31 @@ document.getElementById('stop').addEventListener('click', function () {
 
 //Main BPM 
 let beatLoop;
-let arr = [];
-function BPM(counts){
-if (counts === 0) {
-    active = false;
-    clearInterval(beatLoop);
-} else {
-	countClock = 1;
-	document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
-    sound();
-    if (document.getElementById('infiniteLoop').checked === false) {
-        counts -= 1;
-    }
-    beatLoop = setInterval((e) => {
-		if (active === true && counts !== 0) {
-			countClock++
-			document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
-			sound();
-			arr.push(performance.now())
-			console.log(arr);
-			if (document.getElementById('infiniteLoop').checked === false) {
+function BPM(){
+	let counts = document.getElementById('countsBox').value;
+	if (counts === 0) {
+		active = false;
+		clearInterval(beatLoop);
+	} else {
+		countClock = 1;
+		document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
+		sound();
+		if (document.getElementById('infiniteLoop').checked === false) {
 			counts -= 1;
-			}
-		} else {
-			active = false;
-			clearInterval(beatLoop);
-			console.log(performance.now(),"no beat"); 
 		}
-	}, 60000/Number(document.getElementById('bpmBox').value));
-}
+		beatLoop = setInterval((e) => {
+			if (active === true && counts !== 0) {
+				countClock++
+				document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
+				sound();
+				if (document.getElementById('infiniteLoop').checked === false) {
+				counts -= 1;
+				}
+			} else {
+				active = false;
+			}
+		}, 60000/Number(document.getElementById('bpmBox').value));
+	}
 }
 
 function mutateBPM(){
@@ -104,7 +99,6 @@ function mutateBPM(){
 
 	console.log(mutationRange,mutateStep);
 }
-mutateBPM()
 
 //Event Listeners
 /* document.querySelectorAll('.inputElement').forEach(item => {
@@ -123,7 +117,13 @@ document.getElementById('playSound').addEventListener('click', function () {
 document.getElementById('start').addEventListener('mousedown', function () {
 	if (active === false || active !== true) {
 		active = true;
-		BPM(8)
+		BPM()
+	}
+});
+
+document.getElementById('bpmBox').addEventListener('change', function () {
+	if (active === true) {
+		BPM()
 	}
 });
 
@@ -158,3 +158,14 @@ function switchBPMVerb(bpmValue){
 }
 
 //Debugging
+let interval = 1000; // ms
+let expected = performance.now() + interval;
+setTimeout(step, interval);
+function step() {
+    setTimeout((e) => {
+		sound();
+		expected += interval;
+    	step();
+
+    }, Math.max(0, interval - (performance.now() - expected)));
+}
