@@ -6,7 +6,7 @@
         <link rel="stylesheet" href="dark-theme.css">
         <script>
             function syncInput(value,id) {
-                 eval("document.getElementById('" + id + "').value =" + value)
+                eval("document.getElementById('" + id + "').value =" + value)
             }
             
         </script>
@@ -15,9 +15,11 @@
         <div class="hubBox">
             <div class="sectionWrapper">
                 <button id="playSound" type="button">Play Sound</button>
+                <button id="tapTempo" type="button">Tap Tempo</button>
                 <button id="start" type="button">Start BPM Loop</button>
                 <button id="stop" type="button">Stop BPM Loop</button>
-                <div><input checked type="checkbox" id="infiniteLoop"><label for="infiniteLoop">Continuous Loop?</label></div>
+                <div><input type="checkbox" id="infiniteLoop" checked><label for="infiniteLoop">Continuous Loop</label></div>
+                <div><input type="checkbox" id="mutateToggle"><label for="mutateToggle">Mutate BPM</label></div>
             </div>
             <div class="hubBoxInputs">
                 
@@ -58,11 +60,11 @@
             </div>
             <div class="hubBoxInputs">
                 <div class="selection">
-                    <p class="inputText" style="text-align:left">BPM<input id="bpmBox" class="inputElement bpm" type="number" name="bpm" value="60" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmSlider')"></p>
-                    <input id="bpmSlider" class="inputElement bpm" type="range" value="60" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmBox')">
+                    <p class="inputText" style="text-align:left">BPM<input id="bpmBox" class="inputElement bpm" type="number" name="bpm" value="60" min="30" max="600" step="0.1" oninput="syncInput(this.value,'bpmSlider')"></p>
+                    <input id="bpmSlider" class="inputElement bpm" type="range" value="60" min="30" max="600" step="0.1" oninput="syncInput(this.value,'bpmBox')">
                 </div>
                 <div class="selection">
-                    <p class="inputText" style="text-align:left">BPM Max<input id="bpmMutateBox" class="inputElement bpmMutate" type="number" name="bpmMutate" value="120" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmMutateSlider')"></p>
+                    <p class="inputText" style="text-align:left">Mutate BPM<input id="bpmMutateBox" class="inputElement bpmMutate" type="number" name="bpmMutate" value="120" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmMutateSlider')"></p>
                     <input id="bpmMutateSlider" class="inputElement bpmMutate" type="range" value="120" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmMutateBox')">
                 </div>
                 <div class="selection">
@@ -70,12 +72,12 @@
                     <input id="countsSlider" class="inputElement counts" type="range" min="1" max="64" value="16" step="1" oninput="syncInput(this.value,'countsBox')">
                 </div>
                 <div class="selection">
-                    <p class="inputText" style="text-align:left">Mutation Counts<input id="countsMutateBox" class="inputElement countsMutate" type="number" name="countsMutate" min="1" max="64" value="8" step="1" oninput="syncInput(this.value,'countsMutateSlider')"></p>
-                    <input id="countsMutateSlider" class="inputElement countsMutate" type="range" min="1" max="64" value="8" step="1" oninput="syncInput(this.value,'countsMutateBox')">
+                    <p class="inputText" style="text-align:left">Mutation Counts<input id="countsMutateBox" class="inputElement bpmMutate" type="number" name="countsMutate" min="1" max="64" value="8" step="1" oninput="syncInput(this.value,'countsMutateSlider')"></p>
+                    <input id="countsMutateSlider" class="inputElement bpmMutate" type="range" min="1" max="64" value="8" step="1" oninput="syncInput(this.value,'countsMutateBox')">
                 </div>
                 <div class="selection">
-                    <p class="inputText" style="text-align:left">Mutation Start<input id="mutationStartBox" class="inputElement mutationStart" type="number" name="mutationStart" min="1" max="64" value="8" step="1" oninput="syncInput(this.value,'mutationStartSlider')"></p>
-                    <input id="mutationStartSlider" class="inputElement mutationStart" type="range" min="1" max="64" value="8" step="1" oninput="syncInput(this.value,'mutationStartBox')">
+                    <p class="inputText" style="text-align:left">Mutation Start<input id="mutationStartBox" class="inputElement bpmMutate" type="number" name="mutationStart" min="1" max="64" value="1" step="1" oninput="syncInput(this.value,'mutationStartSlider')"></p>
+                    <input id="mutationStartSlider" class="inputElement bpmMutate" type="range" min="1" max="64" value="1" step="1" oninput="syncInput(this.value,'mutationStartBox')">
                 </div>
             </div>
             <div class="hubBoxInputs">
@@ -87,10 +89,29 @@
             <div class="sectionWrapper">
                 <div class="Clock" id="CountClock">Count: 0</div>
             </div>
+            <br>
+            <div class="sectionWrapper">
+                <button id="random" type="button">Random BPM</button>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Min<input id="bpmRandMinBox" class="inputElement bpmRandMin" type="number" name="bpmRandMin" value="30" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmRandMinSlider')"></p>
+                    <input id="bpmRandMinSlider" class="inputElement bpmRandMin" type="range" value="30" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmRandMinBox')">
+                </div>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">Max<input id="bpmRandMaxBox" class="inputElement bpmRandMax" type="number" name="bpmRandMax" value="300" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmRandMaxSlider')"></p>
+                    <input id="bpmRandMaxSlider" class="inputElement bpmRandMax" type="range" value="300" min="30" max="600" step="1" oninput="syncInput(this.value,'bpmRandMaxBox')">
+                </div>
+            </div>
+            <div class="sectionWrapper">
+                <button id="guessBPM" type="button">Submit Guess</button>
+                <div class="selection">
+                    <p class="inputText" style="text-align:left">BPM<input id="bpmGuessBox" class="inputElement bpmGuess" type="number" name="bpmGuess" value="0" min="30" max="600" step="0.1" oninput="syncInput(this.value,'bpmGuessSlider')"></p>
+                    <input id="bpmGuessSlider" class="inputElement bpmGuess" type="range" value="0" min="30" max="600" step="0.1" oninput="syncInput(this.value,'bpmGuessBox')">
+                </div>
+            </div>
+            <div class="sectionWrapper">
+                <p id="guessMessage"></p>
+            </div>
         </div>
-        
-            
-        
     <footer>
 
     </footer>

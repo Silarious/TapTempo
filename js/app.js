@@ -2,13 +2,18 @@
 
 //Global Variables
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
+
+const getValue = (id) => Number(document.getElementById(id).value);
+
+function setValue(ID,value){
+    document.getElementById(`${ID}Box`).value = value;
+    document.getElementById(`${ID}Slider`).value = value;
+}
+
 let context = new AudioContext();
 let osc = null;
 let volume = null;
-let bpmValue = document.getElementById('bpmBox').value;
-let bpmMutateValue = document.getElementById('bpmMutateBox').value;
-let countsMutate = document.getElementById('countsMutateBox').value;
-let mutationStart = document.getElementById('mutationStartBox').value;
+let bpmValue = getValue('bpmBox');
 let active;
 let countClock = 0;
 
@@ -24,18 +29,18 @@ performance.now = (function() {
 
 //Produce sound with different paramters to shape the oscilator.
 function sound() {
-	let masterVolume = Number(document.getElementById('masterVolumeBox').value);
-	let attack = Number(document.getElementById('attackBox').value);
-	let decay = Number(document.getElementById('decayBox').value);
-	let sustain = Number(document.getElementById('sustainBox').value);
-	let sustainLevel = Number(document.getElementById('sustainLevelBox').value);
-	let release = Number(document.getElementById('releaseBox').value);
+	let masterVolume = getValue('masterVolumeBox');
+	let attack = getValue('attackBox');
+	let decay = getValue('decayBox');
+	let sustain = getValue('sustainBox');
+	let sustainLevel = getValue('sustainLevelBox');
+	let release = getValue('releaseBox');
 
 	osc = context.createOscillator();
 	volume = context.createGain();
 	osc.connect(volume);
 	osc.type = oscType.options[document.getElementById('oscType').selectedIndex].value;
-	osc.frequency.value = Number(document.getElementById('freqBox').value);
+	osc.frequency.value = getValue('freqBox');
 	volume.connect(context.destination);
 	osc.start(0);
 
@@ -54,50 +59,161 @@ function sound() {
 	osc.stop(context.currentTime + totalTime);
 }
 
-document.getElementById('stop').addEventListener('click', function () {
-	if (active !== false) {
-	active = false;
-	countClock = 0;
-	document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
-	BPM(0);
-	}
-});
-
 //Main BPM 
 let beatLoop;
 function BPM(){
+	if (getValue('bpmBox') > 1 && getValue('bpmBox') < 1000){
+	let expected = performance.now();
 	let counts = document.getElementById('countsBox').value;
+	
 	if (counts === 0) {
-		active = false;
-		clearInterval(beatLoop);
+		bpmStop();
 	} else {
 		countClock = 1;
 		document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
 		sound();
+		//TODO Include countClock in count subtraction
 		if (document.getElementById('infiniteLoop').checked === false) {
 			counts -= 1;
-		}
-		beatLoop = setInterval((e) => {
-			if (active === true && counts !== 0) {
-				countClock++
-				document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
-				sound();
-				if (document.getElementById('infiniteLoop').checked === false) {
-				counts -= 1;
+		}	
+		//TODO Improve performance/fix buggy sounds when changing tempo
+		beatLoop = setTimeout(step, (60000/getValue('bpmBox')));
+		let initialBPM = getValue('bpmBox');
+		let mutatedBPM = initialBPM;
+		let mutationRange = getValue('bpmMutateBox') - initialBPM;
+		let mutateStep = mutationRange/getValue('countsMutateBox');
+		let delay = getValue('mutationStartBox') + getValue('countsMutateBox');
+		let mutateLoopCount = 0;
+		console.log(mutationRange,mutateStep);
+		function step() {
+			setTimeout((e) => {
+				//TODO Implement BPM hold at top and bottom of mutation loop
+				if (document.getElementById('mutateToggle').checked === true){
+					if (countClock >= getValue('mutationStartBox')){
+						if (getValue('bpmBox') !== getValue('bpmMutateBox') 
+						&& document.getElementById('infiniteLoop').checked === false){
+							mutatedBPM += mutateStep;
+							setValue('bpm',mutatedBPM);
+						} else if (document.getElementById('infiniteLoop').checked === true){
+							if (mutateLoopCount < delay 
+							&& (getValue('bpmBox') + mutateStep) !== getValue('bpmMutateBox')
+							&& (getValue('bpmBox') + mutateStep) !== initialBPM){
+							mutatedBPM += mutateStep;
+							setValue('bpm',mutatedBPM);
+							mutateLoopCount++
+							} else {
+							mutatedBPM += mutateStep;
+							setValue('bpm',mutatedBPM);
+
+							mutateLoopCount = 0;
+							mutateStep = -(mutateStep)
+							if (delay = getValue('mutationStartBox') + getValue('countsMutateBox'))
+							delay -= getValue('mutationStartBox');
+							}
+						}
+					}
 				}
-			} else {
-				active = false;
-			}
-		}, 60000/Number(document.getElementById('bpmBox').value));
+				if (active === true && counts !== 0) {
+					sound();
+					expected += 60000/getValue('bpmBox');
+					countClock++
+					document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;				
+					if (document.getElementById('infiniteLoop').checked === false) {
+						counts -= 1;
+					}
+					step();	
+				} else {
+					bpmStop();
+					setValue('bpm',initialBPM);
+				}
+			}, Math.max(0, 60000/getValue('bpmBox') - (performance.now() - expected)));
+		}
 	}
+} else {
+	console.log('Warning you cannot be outside the allowed BPM range of 1 to 1000')
+	setValue('bpm',60)
+	BPM()
+}
 }
 
-function mutateBPM(){
-	let mutationRange =  bpmMutateValue - bpmValue;
-	
-	let mutateStep = mutationRange/countsMutate;
+function bpmStop(){
+	if (active !== false) {
+		active = false;
+		countClock = 0;
+		document.getElementById('CountClock').innerHTML = `Count: ${countClock}`;
+		document.querySelectorAll(".bpmMutate").forEach(item => {
+			item.disabled = "";
+		});
+		document.getElementById('infiniteLoop').disabled = "";
+		clearTimeout(beatLoop);
+		}
+};
+function bpmStart(){
+	if (active === false || active !== true) {
+		active = true;
+		document.querySelectorAll(".bpmMutate").forEach(item => {
+			item.disabled = "disabled";
+		});
+		document.getElementById('infiniteLoop').disabled = "disabled";
+		BPM()
+	}
+};
 
-	console.log(mutationRange,mutateStep);
+function randomBPM() { // min and max included
+	let bpmRandMin = getValue('bpmRandMinBox');
+	let bpmRandMax = getValue('bpmRandMaxBox');
+	let randomInt = Math.floor(Math.random() * (bpmRandMax - bpmRandMin + 1) + bpmRandMin);
+	setValue('bpm',randomInt);
+}
+
+function guessBPM(){
+	bpmStop()
+	let guess = getValue('bpmGuessBox');
+	let answer = getValue('bpmBox');
+	
+	let diff = guess - answer;
+	let absDiff = Math.abs(diff);
+	let diffPercent = ((diff/answer) * 100).toFixed(1);
+
+	let accuracyMessage;
+	
+	
+	if (diff === 0){	
+		accuracyMessage = `Right on the money, your guess matches the answer.`;
+	} else if (diff >= 0){	
+		accuracyMessage = `Your guess was ${diffPercent}% too fast.`;
+	} else if (diff <= 0){
+		accuracyMessage = `Your guess was ${diffPercent}% too slow.`;
+	}
+	let message = accuracyMessage;
+	if (absDiff === 0){ message = `Congratulations! ${accuracyMessage}`;} else
+	if (absDiff <= 1){ message = `You were very close. ${accuracyMessage}`;} else
+	if (absDiff <= 2){ message = `You were close. ${accuracyMessage}`; } else
+	if (absDiff <= 3){ message = `You should practice some more. ${accuracyMessage}`;} else
+	if (absDiff <= 4){ message = `Your timing isn't consistent enouch keep practicing. ${accuracyMessage}`;} else
+	if (absDiff <= 5){ message = `Hopefully this was a fluke, try again next time. ${accuracyMessage}`;}
+	document.getElementById('guessMessage').innerHTML = message;
+}
+
+let tapArr = [1000,];
+let tapArrMS = [];
+let beat = 0;
+
+function tapTempo (){
+if (tapArr.length === 2){
+	tapArr.shift();
+}
+tapArr[1] = performance.now();
+if (beat === 8){
+	beat = 0;
+}
+
+tapArrMS[beat - 1] = (tapArr[1] - tapArr[0]);
+let sum = tapArrMS.reduce((a, b) => a + b, 0);
+let avg = (sum / tapArrMS.length) || 0;
+
+if (avg !== 0){setValue('bpm',60000/avg)}
+beat++
 }
 
 //Event Listeners
@@ -110,22 +226,12 @@ function mutateBPM(){
 		}
 	})
 }); */
-document.getElementById('playSound').addEventListener('click', function () {
-	sound()
-});
-
-document.getElementById('start').addEventListener('mousedown', function () {
-	if (active === false || active !== true) {
-		active = true;
-		BPM()
-	}
-});
-
-document.getElementById('bpmBox').addEventListener('change', function () {
-	if (active === true) {
-		BPM()
-	}
-});
+document.getElementById('playSound').addEventListener('mousedown', function () {sound()});
+document.getElementById('tapTempo').addEventListener('mousedown', function () {tapTempo(); });
+document.getElementById('start').addEventListener('mousedown', function () {bpmStart()});
+document.getElementById('stop').addEventListener('mousedown', function () {bpmStop()});
+document.getElementById('random').addEventListener('mousedown', function () {randomBPM()});
+document.getElementById('guessBPM').addEventListener('mousedown', function () {guessBPM()});
 
 //Note Freq Calculations
 const referenceNoteFrequency = 440;
@@ -158,14 +264,26 @@ function switchBPMVerb(bpmValue){
 }
 
 //Debugging
-let interval = 1000; // ms
-let expected = performance.now() + interval;
-setTimeout(step, interval);
-function step() {
-    setTimeout((e) => {
-		sound();
-		expected += interval;
-    	step();
 
-    }, Math.max(0, interval - (performance.now() - expected)));
-}
+
+//Gamemodes
+/*
+- Guess BPM
+	- Different ranges, 30 - 300, 180 - 200, 60 - 120
+		- The number will be random within the range
+		- Larger the range the harder the difficulty
+	- Different amount of counts to hear the tempo before having to guess.
+		- 16, 8, 4, or just 2 counts, less is more difficult
+	- BPM to the tenth decimal point
+		- This literally means 10X the difficulty.
+- Did the BPM change?
+	- Slowly ramp BPM up or down from 1 value to another.
+		- Example: 120 to 140 over 32 counts.
+	- Different amount of counts to hear the initialBPM
+		- For higher difficulties this should be random
+	- What was the lowest/highest BPM
+	- Did the BPM go faster or slower
+	- How many counts did it take to get to the end BPM
+
+
+*/
