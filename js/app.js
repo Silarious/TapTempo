@@ -204,13 +204,22 @@ if (tapArr.length === 2){
 	tapArr.shift();
 }
 tapArr[1] = performance.now();
-if (beat === 8){
+if (beat === 4){
 	beat = 0;
 }
+let diffMS = (tapArr[1] - tapArr[0]);
 
-tapArrMS[beat - 1] = (tapArr[1] - tapArr[0]);
+if (diffMS < 2000){
+	tapArrMS[beat - 1] = diffMS;
+}
+
+
+
+
 let sum = tapArrMS.reduce((a, b) => a + b, 0);
 let avg = (sum / tapArrMS.length) || 0;
+
+console.log(tapArr, tapArrMS, avg, beat)
 
 if (avg !== 0){setValue('bpm',60000/avg)}
 beat++
@@ -276,6 +285,10 @@ function switchBPMVerb(bpmValue){
 		- 16, 8, 4, or just 2 counts, less is more difficult
 	- BPM to the tenth decimal point
 		- This literally means 10X the difficulty.
+	- Overlappng Tempos (Guessing multiple Tempos at the same time)
+		- Example 120 and 90 which is 75% of 120
+		- Close overlapping 120 and 125
+		- Start them synced or different times
 - Did the BPM change?
 	- Slowly ramp BPM up or down from 1 value to another.
 		- Example: 120 to 140 over 32 counts.
@@ -284,6 +297,4 @@ function switchBPMVerb(bpmValue){
 	- What was the lowest/highest BPM
 	- Did the BPM go faster or slower
 	- How many counts did it take to get to the end BPM
-
-
 */
